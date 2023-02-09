@@ -1,0 +1,95 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "User API",
+    "description": "A sample API for managing user information"
+  },
+  "host": "localhost:5000",
+  "basePath": "/",
+  "paths": {
+    "/api/user/signup": {
+      "post": {
+        "description": "Create a new user",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Signup",
+            "description": "Signup information",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Signup"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/api/user/login":{
+      "post": {
+        "description": "Login using TOTP",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "login",
+            "description": "Login information",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Login"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Login": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Username for login"
+        },
+        "password": {
+          "type": "string",
+          "description": "password for login"
+        },
+        "totpCode": {
+          "type": "number",
+          "description": "TOTP code for login"
+        }
+      }
+    },
+    "Signup": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Username for login"
+        },
+        "password": {
+          "type": "string",
+          "description": "password for login"
+        }
+      }
+    }
+  }
+}
