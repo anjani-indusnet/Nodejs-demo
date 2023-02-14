@@ -1,0 +1,21 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {
+      "no-console": 0,
+      "semi":["error", "always"],
+      "quotes":["error","double"],
+      "no-var": 2,
+      "arrow-spacing":2,
+      "no-duplicate-imports":2
+
+     }
+  }
