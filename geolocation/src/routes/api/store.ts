@@ -1,19 +1,25 @@
 import { Router, Response } from "express";
 import HttpStatusCodes from "http-status-codes";
 import csvParser from 'csv-parser';
+import { exec } from 'child_process';
 import fs from 'fs';
 import Store from '../../models/store';
+import request from "Request";
+const logger = require('./../../logger');
+var path = require('path');
+require('dotenv').config();
 
 const router: Router = Router();
 
 router.post('/import', async (req, res) => {
     try {
+      
       const stores: any[] = [];
     
       fs.createReadStream('stores.csv')
         .pipe(csvParser())
         .on('data', (data: any) => {
-          console.log("data reterived successfully from the csv", data);
+          console.log("data reterived successfully from the csv");
           console.log(data.storeName)
           stores.push({
             storeName: data.storeName,
@@ -43,11 +49,9 @@ router.post('/import', async (req, res) => {
     }
   });
 
-  router.post('/nearpick', async (req, res) => {
+  router.post('/nearpick', async (req:request, res:Response) => {
     const { lat, lng } = req.body;
-    console.log(lat,lng)
     const maxDistance = 30 * 1000;
-    console.log(maxDistance)
   try {
     const stores = await Store.aggregate([
         {
@@ -64,11 +68,12 @@ router.post('/import', async (req, res) => {
            }
         }
     ]);
-    console.log(stores.length);
-    res.json({statusCode:HttpStatusCodes.OK,stores:stores})
+    logger.debug(`This is the length of the stores ${stores.length}`);
+    logger.info("Data reterived successfully");
+    res.json({message: "Data reterived successfully",statusCode:HttpStatusCodes.OK,stores:stores})
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Failed to extract Data' });
+    logger.error(error);
+    res.json({message: "Failed to extract Data" ,statusCode:HttpStatusCodes.INTERNAL_SERVER_ERROR})
   }
     
   });
