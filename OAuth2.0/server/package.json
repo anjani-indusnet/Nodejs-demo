@@ -14,7 +14,9 @@
     "winston": "^3.8.2"
   },
   "scripts": {
-    "start": "nodemon"
+    "start": "nodemon",
+    "build": "tsc",
+    "server": "nodemon dist/index.js"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",

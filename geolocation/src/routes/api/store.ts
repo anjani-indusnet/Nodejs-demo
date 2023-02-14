@@ -11,7 +11,35 @@ require('dotenv').config();
 
 const router: Router = Router();
 
-router.post('/import', async (req, res) => {
+router.post('/nearpick', async (req:request, res:Response) => {
+    const { lat, lng } = req.body;
+    const maxDistance = 30 * 1000;
+  try {
+    const stores = await Store.aggregate([
+        {
+           "$geoNear":
+           {
+            near: {
+              type: 'Point',
+              coordinates: [lng, lat]
+            },
+            key: "storeLocation",
+            maxDistance: maxDistance,
+            spherical: true,
+            distanceField: 'distance'
+           }
+        }
+    ]);
+    logger.debug(`This is the length of the stores ${stores.length}`);
+    logger.info("Data reterived successfully");
+    res.json({message: "Data reterived successfully",statusCode:HttpStatusCodes.OK,stores:stores})
+  } catch (error) {
+    logger.error(error);
+    res.json({message: "Failed to extract Data" ,statusCode:HttpStatusCodes.INTERNAL_SERVER_ERROR})
+  }
+    
+  });
+  router.post('/import', async (req:request, res:Response) => {
     try {
       
       const stores: any[] = [];
@@ -47,34 +75,5 @@ router.post('/import', async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: 'Failed to import CSV' });
     }
-  });
-
-  router.post('/nearpick', async (req:request, res:Response) => {
-    const { lat, lng } = req.body;
-    const maxDistance = 30 * 1000;
-  try {
-    const stores = await Store.aggregate([
-        {
-           "$geoNear":
-           {
-            near: {
-              type: 'Point',
-              coordinates: [lng, lat]
-            },
-            key: "storeLocation",
-            maxDistance: maxDistance,
-            spherical: true,
-            distanceField: 'distance'
-           }
-        }
-    ]);
-    logger.debug(`This is the length of the stores ${stores.length}`);
-    logger.info("Data reterived successfully");
-    res.json({message: "Data reterived successfully",statusCode:HttpStatusCodes.OK,stores:stores})
-  } catch (error) {
-    logger.error(error);
-    res.json({message: "Failed to extract Data" ,statusCode:HttpStatusCodes.INTERNAL_SERVER_ERROR})
-  }
-    
   });
   export default router;

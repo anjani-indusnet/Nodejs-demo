@@ -23,10 +23,6 @@ app.use(passport.session());
 // @desc    Test Base API
 // @access  Public
 
-app.get("/", (_req, res) => {
-  res.send("API Running");
-});
-
 app.use("/api/stores", store);
 
 const port = app.get("port");
