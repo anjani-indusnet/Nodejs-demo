@@ -6,6 +6,7 @@ import connectDB from "../config/database";
 import user from "./routes/api/user";
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('../../swagger.json');
+require('dotenv').config();
 const app = express();
 // Connect to MongoDB
 connectDB();
