@@ -13,6 +13,10 @@ const router: Router = Router();
 
 router.post('/nearpick', async (req:request, res:Response) => {
     const { lat, lng } = req.body;
+     
+    let pageNumber :number = + req.query.pageNumber;
+    let pageSize :number = + req.query.pageSize;
+
     const maxDistance = 30 * 1000;
   try {
     const stores = await Store.aggregate([
@@ -28,7 +32,9 @@ router.post('/nearpick', async (req:request, res:Response) => {
             spherical: true,
             distanceField: 'distance'
            }
-        }
+        },
+        { $skip: pageNumber * pageSize },
+        { $limit: pageSize }
     ]);
     logger.debug(`This is the length of the stores ${stores.length}`);
     logger.info("Data reterived successfully");
