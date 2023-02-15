@@ -1,8 +1,6 @@
 import { Router, Response } from "express";
 import HttpStatusCodes from "http-status-codes";
-import csvParser from 'csv-parser';
-import { exec } from 'child_process';
-import fs from 'fs';
+const { exec, spawn } = require('child_process');
 import Store from '../../models/store';
 import request from "Request";
 const logger = require('./../../logger');
@@ -11,75 +9,56 @@ require('dotenv').config();
 
 const router: Router = Router();
 
-router.post('/nearpick', async (req:request, res:Response) => {
-    const { lat, lng } = req.body;
-     
-    let pageNumber :number = + req.query.pageNumber;
-    let pageSize :number = + req.query.pageSize;
+router.post('/nearpick', async (req: request, res: Response) => {
+  const { lat, lng } = req.body;
 
-    const maxDistance = 30 * 1000;
+  let pageNumber: number = + req.query.pageNumber;
+  let pageSize: number = + req.query.pageSize;
+
+  const maxDistance = 30 * 1000;
   try {
     const stores = await Store.aggregate([
+      {
+        "$geoNear":
         {
-           "$geoNear":
-           {
-            near: {
-              type: 'Point',
-              coordinates: [lng, lat]
-            },
-            key: "storeLocation",
-            maxDistance: maxDistance,
-            spherical: true,
-            distanceField: 'distance'
-           }
-        },
-        { $skip: pageNumber * pageSize },
-        { $limit: pageSize }
+          near: {
+            type: 'Point',
+            coordinates: [lng, lat]
+          },
+          key: "storeLocation",
+          maxDistance: maxDistance,
+          spherical: true,
+          distanceField: 'distance'
+        }
+      },
+      { $skip: pageNumber * pageSize },
+      { $limit: pageSize }
     ]);
     logger.debug(`This is the length of the stores ${stores.length}`);
     logger.info("Data reterived successfully");
-    res.json({message: "Data reterived successfully",statusCode:HttpStatusCodes.OK,stores:stores})
+    res.json({ message: "Data reterived successfully", statusCode: HttpStatusCodes.OK, stores: stores })
   } catch (error) {
     logger.error(error);
-    res.json({message: "Failed to extract Data" ,statusCode:HttpStatusCodes.INTERNAL_SERVER_ERROR})
+    res.json({ message: "Failed to extract Data", statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR })
   }
-    
-  });
-  router.post('/import', async (req:request, res:Response) => {
-    try {
-      
-      const stores: any[] = [];
-    
-      fs.createReadStream('stores.csv')
-        .pipe(csvParser())
-        .on('data', (data: any) => {
-          console.log("data reterived successfully from the csv");
-          console.log(data.storeName)
-          stores.push({
-            storeName: data.storeName,
-            storeLocation: {
-              type: 'Point',
-              coordinates: [
-                parseFloat(data.long),
-                parseFloat(data.lat)
-              ]
-            }
-          });
-        })
-        .on('end',async () => {
-          await Store.create(stores, function(err, stores) {
-            console.log("data went for the store",stores);
-            if (err) { 
-              console.log(err)
-              return err
-            }
-            res.json({ message: 'Stores imported successfully',statusCode:HttpStatusCodes.OK, data: stores});
-          });
-  
-         // res.json({ message: 'CSV imported successfully' });
-        });
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to import CSV' });
+
+});
+router.post('/import-csv', (req: request, res: Response) => {
+  const filePath = 'C:/Users/anjan/OneDrive/Documents/Nodejs-demo/geolocation/stores.csv';
+
+  const command = `mongoimport --type csv --fields "lat,lon,storeName" --db ${process.env.dbName} --collection ${process.env.collectionName} --file ${filePath}`;
+
+  exec(command, (err: object, stderr: object) => {
+    if (err) {
+      console.error(`Error: ${err}`);
+      res.json({ message: "Failed to import Data", statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR })
     }
+    if (stderr) {
+      console.error(`Stderr: ${stderr}`);
+      res.json({ message: "Failed to import Data", statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR })
+    }
+    console.log(`Imported data into ${process.env.dbName}.${process.env.collectionName}`);
+    res.json({ message: "Data imported successfully", statusCode: HttpStatusCodes.CREATED })
   });
-  export default router;
+});
+export default router;
