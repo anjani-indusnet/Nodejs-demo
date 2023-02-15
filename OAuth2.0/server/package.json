@@ -1,4 +1,13 @@
 {
+  "name": "oauth",
+  "version": "1.0.0",
+  "description": "aouth implementation",
+  "author": "Anjani",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "server": "nodemon dist/index.js"
+  },
   "dependencies": {
     "axios": "^0.21.1",
     "cookie-parser": "^1.4.5",
@@ -13,11 +22,7 @@
     "nodemon": "^2.0.20",
     "winston": "^3.8.2"
   },
-  "scripts": {
-    "start": "nodemon",
-    "build": "tsc",
-    "server": "nodemon dist/index.js"
-  },
+ 
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/cookie-parser": "^1.4.2",
