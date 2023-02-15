@@ -11,7 +11,6 @@ const router: Router = Router();
 
 router.post('/nearpick', async (req: request, res: Response) => {
   const { lat, lng } = req.body;
-
   let pageNumber: number = + req.query.pageNumber;
   let pageSize: number = + req.query.pageSize;
 
@@ -44,21 +43,27 @@ router.post('/nearpick', async (req: request, res: Response) => {
 
 });
 router.post('/import-csv', (req: request, res: Response) => {
-  const filePath = 'C:/Users/anjan/OneDrive/Documents/Nodejs-demo/geolocation/stores.csv';
+  try{
+    const filePath = 'C:/Users/anjan/OneDrive/Documents/Nodejs-demo/geolocation/stores.csv';
 
-  const command = `mongoimport --type csv --fields "lat,lon,storeName" --db ${process.env.dbName} --collection ${process.env.collectionName} --file ${filePath}`;
-
-  exec(command, (err: object, stderr: object) => {
-    if (err) {
-      console.error(`Error: ${err}`);
-      res.json({ message: "Failed to import Data", statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR })
-    }
-    if (stderr) {
-      console.error(`Stderr: ${stderr}`);
-      res.json({ message: "Failed to import Data", statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR })
-    }
-    console.log(`Imported data into ${process.env.dbName}.${process.env.collectionName}`);
-    res.json({ message: "Data imported successfully", statusCode: HttpStatusCodes.CREATED })
-  });
+    const command = `mongoimport --type csv --fields "lat,lon,storeName" --db ${process.env.dbName} --collection ${process.env.collectionName} --file ${filePath}`;
+  
+    exec(command, (err: object, stderr: object) => {
+      if (err) {
+        console.error(`Error: ${err}`);
+        res.json({ message: "Failed to import Data", statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR })
+      }
+      if (stderr) {
+        console.error(`Stderr: ${stderr}`);
+        res.json({ message: "Failed to import Data", statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR })
+      }
+      console.log(`Imported data into ${process.env.dbName}.${process.env.collectionName}`);
+      res.json({ message: "Data imported successfully", statusCode: HttpStatusCodes.CREATED })
+    });
+  }
+  catch(e){
+    res.json({ message: "Internal Server Error", statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR })
+  }
+  
 });
 export default router;
