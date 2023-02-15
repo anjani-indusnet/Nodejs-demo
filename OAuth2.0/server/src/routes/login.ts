@@ -29,7 +29,7 @@ async function getGoogleAuthURL() {
 // Getting login URL
 router.get('/auth/google/url', async (req, res) => {
     logger.info('return the url')
-    return res.json({url:getGoogleAuthURL(),statuscode : HttpStatusCodes.OK});
+    return res.json({url:getGoogleAuthURL(),statusCode : HttpStatusCodes.OK});
   }); 
 
 async function getTokens({
